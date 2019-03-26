@@ -3,7 +3,7 @@
 # checkrun.sh
 # ---------------
 # Cron-style mailing wrapper for systemd .timer units
-# (C) 2018 Alexander Koch <mail@alexanderkoch.net>
+# (C) 2018, 2019 Alexander Koch <mail@alexanderkoch.net>
 #
 # Released under the terms of the MIT License, see 'LICENSE'
 
