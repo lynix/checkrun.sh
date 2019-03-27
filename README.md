@@ -5,7 +5,7 @@
 
 ## MOTIVATION
 
-Converting my crontabs to systemd .timer units I quickly came across the need of having an equivalent of `MAILTO`, in order to have the output of some jobs mailed somewhere (not only in case of failed runs).
+Converting my crontabs to systemd .timer units I quickly came across the need of having an equivalent of `MAILTO`, in order to have the output of some jobs mailed somewhere (not only) in case of failed runs.
 
 There is a suggestion using `OnFailure=` in the [Arch Wiki](https://wiki.archlinux.org/index.php/Systemd/Timers#MAILTO) but this has the drawback of limited output as well as the fact that it only works for catching failed jobs - nothing done in case of success.
 
@@ -16,7 +16,7 @@ In fact, checkrun.sh can be seen as a general mailing job wrapper that might get
 ## INSTALLATION
 
 Make sure you have a _sendmail_ binary, or provide a sendmail compatible mail command via `-s` (see below).
-Nothing else required (except `wc` and `mktemp` from _coreutils_).
+Nothing else required (except utilities from _coreutils_, e.g. `wc` and `mktemp`).
 
 For [Arch Linux](https://archlinux.org) there is a package available in the [AUR](https://aur.archlinux.org/packages/?O=0&K=checkrun). On all other distributions you may use `make install` (as root) to have the script installed as _/usr/bin/checkrun_.
 
