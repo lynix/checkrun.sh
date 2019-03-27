@@ -46,8 +46,7 @@ checkrun.sh supports the following command line options:
 | --- | --- | --- |
 | -s | CMD | Use CMD as sendmail binary |
 | -m | MAILTO | Set recipient (default: `$USER`) |
-| -v | | Send output regardless of exit code |
-| -i | | Ignore exit code, notify on output |
+| -q | | Do not sent output on exit code 0 |
 | -h | | Display usage information
 
 

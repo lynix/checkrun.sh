@@ -8,10 +8,9 @@
 # Released under the terms of the MIT License, see 'LICENSE'
 
 # defaults
-MAILER="sendmail"
+MAILER="sendmail -t"
 MAILTO="$(id -un)"
-VERBOSE=0
-IGNRET=0
+QUIET=0
 
 # usage information
 function print_usage() {
@@ -19,25 +18,31 @@ function print_usage() {
 	echo "options:"
 	echo "    -s CMD     use CMD as mailer (default: sendmail)"
 	echo "    -m MAILTO  set recipient for notification mail (default: \$USER)"
-	echo "    -v         send command output even on exit code 0"
-	echo "    -i         ignore exit code, notify on output only"
+	echo "    -q         do not send command output on exit code 0"
 	echo "    -h         display this usage information"
 }
 
+# sendmail interface
+function mail() {
+	FROM="From: checkrun <$USER@$HOSTNAME>"
+	TO="To: $MAILTO"
+	SUBJECT="Subject: $1 (returned $2)"
+
+	echo -e "$FROM\r\n$TO\r\n$SUBJECT\r\n" | cat - "$3" | $MAILER
+}
+
+
 # parse cmdline options
-while getopts ":s:m:vih" OPT; do
-	case $OPT in
+while getopts ":s:m:qh" OPT; do
+	case "$OPT" in
 		s)
 			MAILER="$OPTARG"
 			;;
 		m)
 			MAILTO="$OPTARG"
 			;;
-		v)
-			VERBOSE=1
-			;;
-		i)
-			IGNRET=1
+		q)
+			QUIET=1
 			;;
 		h)
 			print_usage
@@ -54,6 +59,7 @@ while getopts ":s:m:vih" OPT; do
 	esac
 done
 shift $(( $OPTIND - 1 ))
+CMD="$@"
 
 # fail if no command given
 if [ -z "$1" ]; then
@@ -62,26 +68,26 @@ if [ -z "$1" ]; then
 	exit 1
 fi
 
-# execute COMMAND, capture output
+# create output buffer
 LOG="$(mktemp)"
-$@ &> "$LOG"
+[ -z "$LOG" ] && exit 1
+
+# execute COMMAND, capture output and exit code
+$CMD &> "$LOG"
 ERR=$?
 
-# evaluate return value
-if [ $ERR -ne 0 ] && [ $IGNRET -ne 1 ]; then
-	echo -e "Subject: '$@' FAILED ($ERR)\r\n" | cat - "$LOG" | $MAILER "$MAILTO"
+# forward any output to controlling instance (e.g. journal)
+LOG_LINES=$(wc -l "$LOG" | cut -d ' ' -f 1)
+if [ $LOG_LINES -gt 0 ]; then
 	cat "$LOG"
-	exit $ERR
 fi
 
-# notify if output was given and verbose mode selected or exit code ignored
-if [ $(wc -l "$LOG" | cut -d ' ' -f 1) -gt 0 ]; then
-	if [ $VERBOSE -eq 1 ] || [ $IGNRET -eq 1 ]; then
-		echo -e "Subject: '$@'\r\n" | cat - "$LOG" | $MAILER "$MAILTO"
-	fi
+# notify if required
+if (( $ERR != 0 || ($LOG_LINES != 0 && $QUIET == 0) )); then
+	mail "$CMD" $ERR "$LOG"
 fi
 
 # clean up
 rm -f "$LOG"
 
-exit 0
+exit $ERR
