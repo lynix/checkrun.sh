@@ -10,6 +10,7 @@
 # defaults
 MAILER="sendmail -t"
 MAILTO="$(id -un)"
+SFORMAT="%s (returned %d)"
 QUIET=0
 
 # usage information
@@ -18,6 +19,7 @@ function print_usage() {
 	echo "options:"
 	echo "    -s CMD     use CMD as mailer (default: sendmail)"
 	echo "    -m MAILTO  set recipient for notification mail (default: \$USER)"
+	echo "    -f FORMAT  set format string for mail subject (default: \"$SFORMAT\")"
 	echo "    -q         do not send command output on exit code 0"
 	echo "    -h         display this usage information"
 }
@@ -26,20 +28,23 @@ function print_usage() {
 function mail() {
 	FROM="From: checkrun <$USER@$HOSTNAME>"
 	TO="To: $MAILTO"
-	SUBJECT="Subject: $1 (returned $2)"
+	SUBJECT="Subject: $(printf "$SFORMAT" "$1" $2 2>/dev/null | head -n 1)"
 
 	echo -e "$FROM\r\n$TO\r\n$SUBJECT\r\n" | cat - "$3" | $MAILER
 }
 
 
 # parse cmdline options
-while getopts ":s:m:qh" OPT; do
+while getopts ":s:m:f:qh" OPT; do
 	case "$OPT" in
 		s)
 			MAILER="$OPTARG"
 			;;
 		m)
 			MAILTO="$OPTARG"
+			;;
+		f)
+			SFORMAT="$OPTARG"
 			;;
 		q)
 			QUIET=1
