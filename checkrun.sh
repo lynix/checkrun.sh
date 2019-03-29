@@ -10,7 +10,7 @@
 # defaults
 MAILER="sendmail -t"
 MAILTO="$(id -un)"
-SFORMAT="%s (returned %d)"
+SFORMAT="%s [%d]"
 QUIET=0
 
 # usage information

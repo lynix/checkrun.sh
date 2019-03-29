@@ -59,7 +59,7 @@ checkrun.sh supports the following command line options:
 | --- | --- | --- |
 | -s | CMD | Use CMD as sendmail binary |
 | -m | MAILTO | Set recipient (default: `$USER`) |
-| -f | FORMAT | Set subject format string (use `%s` for command and `%d` for return value, default: `%s (returned %d)` |
+| -f | FORMAT | Set subject format string (use `%s` for command and `%d` for return value, default: `%s [%d]` |
 | -q | | Do not sent output on exit code 0 |
 | -h | | Display usage information
 
