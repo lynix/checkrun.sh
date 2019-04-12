@@ -7,9 +7,12 @@
 #
 # Released under the terms of the MIT License, see 'LICENSE'
 
+
+USER="${USER:-$(id -un)}"
+
 # defaults
 MAILER="sendmail -t"
-MAILTO="$(id -un)"
+MAILTO="$USER"
 SFORMAT="%s [%d]"
 QUIET=0
 
