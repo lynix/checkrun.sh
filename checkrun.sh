@@ -9,6 +9,10 @@
 
 
 USER="${USER:-$(id -un)}"
+HOST_FQDN="$HOSTNAME"
+if which hostname &>/dev/null; then
+	HOST_FQDN="$(hostname -f)"
+fi
 
 # defaults
 MAILER="sendmail -t"
@@ -29,7 +33,7 @@ function print_usage() {
 
 # sendmail interface
 function mail() {
-	FROM="From: checkrun <$USER@$HOSTNAME>"
+	FROM="From: checkrun <$USER@$HOST_FQDN>"
 	TO="To: $MAILTO"
 	SUBJECT="Subject: $(printf "$SFORMAT" "$1" $2 2>/dev/null | head -n 1)"
 
