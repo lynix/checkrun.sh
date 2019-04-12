@@ -33,7 +33,7 @@ function print_usage() {
 
 # sendmail interface
 function mail() {
-	FROM="From: checkrun <$USER@$HOST_FQDN>"
+	FROM="From: checkrun on ${HOSTNAME} <${USER}@${HOST_FQDN}>"
 	TO="To: $MAILTO"
 	SUBJECT="Subject: $(printf "$SFORMAT" "$1" $2 2>/dev/null | head -n 1)"
 
