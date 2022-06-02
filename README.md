@@ -61,6 +61,7 @@ checkrun.sh supports the following command line options:
 | -m | MAILTO | Set recipient (default: `$USER`) |
 | -f | FORMAT | Set subject format string (use `%s` for command and `%d` for return value, default: `%s [%d]` |
 | -q | | Do not sent output on exit code 0 |
+| -l | | Do not forward output to `stdout` |
 | -h | | Display usage information
 
 

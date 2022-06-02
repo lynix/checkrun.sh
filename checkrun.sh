@@ -3,7 +3,7 @@
 # checkrun.sh
 # ---------------
 # Cron-style mailing wrapper for systemd .timer units
-# (C) 2018, 2019 Alexander Koch <mail@alexanderkoch.net>
+# (C) Alexander Koch <mail@alexanderkoch.net>
 #
 # Released under the terms of the MIT License, see 'LICENSE'
 
@@ -19,6 +19,7 @@ MAILER="sendmail -t"
 MAILTO="$USER"
 SFORMAT="%s [%d]"
 QUIET=0
+NOLOG=0
 
 # usage information
 function print_usage() {
@@ -28,6 +29,7 @@ function print_usage() {
 	echo "    -m MAILTO  set recipient for notification mail (default: \$USER)"
 	echo "    -f FORMAT  set format string for mail subject (default: \"$SFORMAT\")"
 	echo "    -q         do not send command output on exit code 0"
+	echo "    -l         do not forward command output to stdout"
 	echo "    -h         display this usage information"
 }
 
@@ -42,7 +44,7 @@ function mail() {
 
 
 # parse cmdline options
-while getopts ":s:m:f:qh" OPT; do
+while getopts ":s:m:f:qlh" OPT; do
 	case "$OPT" in
 		s)
 			MAILER="$OPTARG"
@@ -55,6 +57,9 @@ while getopts ":s:m:f:qh" OPT; do
 			;;
 		q)
 			QUIET=1
+			;;
+		l)
+			NOLOG=1
 			;;
 		h)
 			print_usage
@@ -88,9 +93,9 @@ LOG="$(mktemp)"
 $CMD &> "$LOG"
 ERR=$?
 
-# forward any output to controlling instance (e.g. journal)
+# forward output to controlling instance (e.g. journal) if not disabled
 LOG_LINES=$(wc -l "$LOG" | cut -d ' ' -f 1)
-if [ $LOG_LINES -gt 0 ]; then
+if [ $NOLOG -eq 0 ] && [ $LOG_LINES -gt 0 ]; then
 	cat "$LOG"
 fi
 
