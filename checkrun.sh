@@ -20,6 +20,7 @@ MAILTO="$USER"
 SFORMAT="%s [%d]"
 QUIET=0
 NOLOG=0
+NOEMPTY=0
 
 # usage information
 function print_usage() {
@@ -29,6 +30,7 @@ function print_usage() {
 	echo "    -m MAILTO  set recipient for notification mail (default: \$USER)"
 	echo "    -f FORMAT  set format string for mail subject (default: \"$SFORMAT\")"
 	echo "    -q         do not send command output on exit code 0"
+	echo "    -n         do not send notification if output is empty"
 	echo "    -l         do not forward command output to stdout"
 	echo "    -h         display this usage information"
 }
@@ -44,7 +46,7 @@ function mail() {
 
 
 # parse cmdline options
-while getopts ":s:m:f:qlh" OPT; do
+while getopts ":s:m:f:qlnh" OPT; do
 	case "$OPT" in
 		s)
 			MAILER="$OPTARG"
@@ -57,6 +59,9 @@ while getopts ":s:m:f:qlh" OPT; do
 			;;
 		q)
 			QUIET=1
+			;;
+		n)
+			NOEMPTY=1
 			;;
 		l)
 			NOLOG=1
@@ -100,7 +105,9 @@ if [ $NOLOG -eq 0 ] && [ $LOG_LINES -gt 0 ]; then
 fi
 
 # notify if required
-if (( $ERR != 0 || ($LOG_LINES != 0 && $QUIET == 0) )); then
+if (( ($ERR == 0  && $LOG_LINES != 0 && $QUIET == 0) || \
+	($ERR != 0 && $LOG_LINES != 0) || \
+	($ERR != 0 && $LOG_LINES == 0 && $NOEMPTY == 0) )); then
 	mail "$CMD" $ERR "$LOG"
 fi
 
